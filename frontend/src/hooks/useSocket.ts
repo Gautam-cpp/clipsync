@@ -12,7 +12,8 @@ export default function useSocket({room}:{room:string}) {
 
 
       useEffect(() => {
-        const ws = new WebSocket("ws://localhost:8080");
+        const url = process.env.NEXT_PUBLIC_WEBSOCKET_URL || "";
+        const ws = new WebSocket(url);
       
         ws.onmessage = async (event: MessageEvent) => {
           try {
