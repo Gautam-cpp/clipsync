@@ -1,22 +1,44 @@
 import { WebSocketServer, WebSocket } from "ws";
-import Redis from "ioredis";
+import { createClient } from "redis";
+import dotenv from "dotenv";
+dotenv.config();
 
-const wss = new WebSocketServer({ port: 8080 });
+const PORT = parseInt(process.env.PORT || "8080", 10);
 
-const redis = new Redis({
-  host: "localhost",
-  port: 6379,
+const wss = new WebSocketServer({ port: PORT });
+
+const redis = createClient({
+  username: "default",
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: 18876
+  },
 });
 
 redis.on("connect", () => {
   console.log("connected to redis");
 });
 
+redis.on("error", (err) => {
+  console.log(process.env.REDIS_PASSWORD);
+  console.error("Redis error:", err);
+});
+
+async function redisConnect() {
+  try{
+    await redis.connect();
+  } catch (error) {
+    console.error("Redis connection error:", error);
+  }
+}
+
+redisConnect();
+
 const allSockets = new Map<WebSocket, string>();
 
-wss.on("connection",  (socket) => {
+wss.on("connection", (socket) => {
   socket.on("message", async (message, isBinary) => {
-    
     if (isBinary) {
       const room = allSockets.get(socket);
       allSockets.forEach((r, s) => {
@@ -26,49 +48,43 @@ wss.on("connection",  (socket) => {
       });
       return;
     }
+
     const parsedMessage = JSON.parse(message.toString());
 
-    if (parsedMessage.type == "join") {
-      
-      allSockets.set(socket, parsedMessage.payload.room);
+    if (parsedMessage.type === "join") {
+      const room = parsedMessage.payload.room;
+      allSockets.set(socket, room);
 
-      const lastMessage = await redis.hget(
-        "roomMessages",
-        parsedMessage.payload.room
-      );
-
+      const lastMessage = await redis.get(`room:${room}:lastMessage`);
       if (lastMessage) {
         socket.send(lastMessage);
       }
     }
 
-    if (parsedMessage.type == "msg") {
+    if (parsedMessage.type === "msg") {
       const room = allSockets.get(socket);
-       
-        
-      await redis.hset(
-        "roomMessages",
-        room || "",
-        parsedMessage.payload.chat.toString()
-      );
+      const chat = parsedMessage.payload.chat.toString();
 
-      allSockets.forEach((room, s) => {
-        if (room === parsedMessage.payload.room) {
-          s.send(parsedMessage.payload.chat.toString());
+      if (room) {
+        await redis.set(`room:${room}:lastMessage`, chat);
+        allSockets.forEach((r, s) => {
+          if (r === room) {
+            s.send(chat);
+          }
+        });
+      }
+    }
+
+    if (parsedMessage.type === "file-meta") {
+      const metaString = JSON.stringify(parsedMessage);
+      const room = parsedMessage.payload.room;
+
+      allSockets.forEach((r, s) => {
+        if (r === room) {
+          s.send(metaString);
         }
       });
     }
-
-    if (parsedMessage.type == "file-meta") {
-      
-      const metaString = JSON.stringify(parsedMessage); 
-      allSockets.forEach((room, s) => {
-        if (room === parsedMessage.payload.room) {
-          s.send(metaString); 
-        }
-      });
-    }
-    
   });
 
   socket.on("close", () => {
