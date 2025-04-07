@@ -37,7 +37,7 @@ redisConnect();
 
 const allSockets = new Map<WebSocket, string>();
 
-wss.on("connection", (socket) => {
+wss.on("connection", (socket: WebSocket) => {
   socket.on("message", async (message, isBinary) => {
     if (isBinary) {
       const room = allSockets.get(socket);
