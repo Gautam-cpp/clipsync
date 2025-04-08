@@ -37,10 +37,14 @@ export default function OTPInput({openOtpdialog, setOpenOtpdialog, email}: dialo
             if(result){
                 router.push('/iead00')
             }
-        } catch (error:any) {
+        } catch (error: unknown) {
+
             console.error("Verification failed:", error);
-            const backendMessage = error?.response?.data?.message;
-        setErrorMessage(backendMessage || 'Invalid OTP. Please try again.');
+            if (error instanceof Error) {
+                setErrorMessage(error.message || 'Invalid OTP. Please try again.');
+                
+            }
+          
         } finally {
             setIsLoading(false);
         }
@@ -53,10 +57,12 @@ export default function OTPInput({openOtpdialog, setOpenOtpdialog, email}: dialo
             
             setOtp(Array(6).fill(''));
             inputs.current[0]?.focus();
-        } catch (error:any) {
+        } catch (error:unknown) {
             console.error("Resend failed:", error);
-            const backendMessage = error?.response?.data?.message;
-            setErrorMessage(backendMessage || 'Invalid OTP. Please try again.');
+            if(error instanceof Error){
+                setErrorMessage(error.message || 'Failed to resend OTP. Please try again.');
+            }
+            
         }
     }
 

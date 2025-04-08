@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -41,7 +42,7 @@ export default function RoomId() {
           onClick={handleCopy}
           className="w-full mb-4 p-4 rounded-lg text-center bg-gray-200 hover:bg-gray-300"
         >
-          {buttonText=='copy'? <img width={20}  src="copy.svg"/> : <img width={20} src="done.svg"/>}
+          {buttonText=='copy'? <Image src="/copy.svg" alt="Copy" width={20} height={20} /> : <Image src="/done.svg" alt="Copied" width={20} height={20} />}
         </button>
       </div>
       <button

@@ -1,7 +1,7 @@
 'use client';
 
 import useSocket from '@/hooks/useSocket';
-import { useSession } from 'next-auth/react';
+
 import { useState, useRef } from 'react';
 
 export default function FileShare({ room }: { room: string }) {
@@ -10,7 +10,7 @@ export default function FileShare({ room }: { room: string }) {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const {data: session, status} = useSession();
+    
     
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

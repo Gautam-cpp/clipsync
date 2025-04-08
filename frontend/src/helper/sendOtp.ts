@@ -15,7 +15,7 @@ export default async  function sendOTP(email:string){
     const otpExpiresAt = new Date();
     otpExpiresAt.setMinutes(otpExpiresAt.getMinutes() + 5);
     
-    const user = await prisma.user.update({
+    await prisma.user.update({
         where: {
             email: email,
         },

@@ -1,6 +1,7 @@
 'use client'
 
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AppBar() {
@@ -11,12 +12,9 @@ export default function AppBar() {
     <div className="fixed top-1 left-1/2 transform -translate-x-1/2 h-16 px-8 w-2/5 text-white shadow-md bg-gray-800 py-4 flex items-center justify-between z-50 rounded-4xl">
     {/* Logo */}
     <div>
-      <a 
-        href="/" 
-        className="text-xl font-bold hover:text-gray-300 transition-colors"
-      >
+    <Link href="/" className="text-xl font-bold hover:text-gray-300 transition-colors">
         CLIPSYNC
-      </a>
+    </Link>
     </div>
 
     

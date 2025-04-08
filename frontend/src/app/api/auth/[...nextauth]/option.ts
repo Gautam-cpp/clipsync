@@ -46,9 +46,14 @@ export const authOptions: NextAuthOptions = {
 
           return newUser;
 
-        } catch (error: any) {
-          console.error("Authorize error:", error);
-          throw new Error(error.message || "Authentication failed");
+        } catch (error: unknown) {
+            console.error("Authorize error:", error);
+          
+            if (error instanceof Error) {
+              throw new Error(error.message || "Authentication failed");
+            }
+          
+            throw new Error("Authentication failed");
         }
       },
     }),
@@ -75,9 +80,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.verified = user.verified;
-        if ("username" in user) {
-          token.username = user.username;
-        }
+        
       }
       return token;
     },
@@ -87,9 +90,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.verified = token.verified as boolean;
-        if (token.username) {
-          session.user.username = token.username as string;
-        }
+        
       }
       return session;
     },

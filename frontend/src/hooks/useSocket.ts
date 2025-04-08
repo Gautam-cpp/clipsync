@@ -1,5 +1,5 @@
 
-import { use, useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 
 export default function useSocket({room}:{room:string}) {
      const [message, setMessage] = useState("");
@@ -30,6 +30,7 @@ export default function useSocket({room}:{room:string}) {
                 }
               } catch (err) {
                 setMessage(event.data);
+                console.log(err);
               }
             } else {
              
@@ -72,7 +73,7 @@ export default function useSocket({room}:{room:string}) {
         return () => {
           ws.close();
         };
-      }, []);
+      }, [room]);
       
       return{
         message,

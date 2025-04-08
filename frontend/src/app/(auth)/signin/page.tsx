@@ -1,7 +1,7 @@
 'use client';
 import OTPInput from "@/components/OTPInput";
 
-import {  getSession, signIn, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,7 +12,7 @@ export default function Signin() {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [openOtpdialog, setOpenOtpdialog] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   async function submitSignin() {
     setErrorMessage("");
@@ -44,9 +44,13 @@ export default function Signin() {
       router.push(`/${room}`);
 
      
-    } catch (err: any) {
-      setErrorMessage(err.message);
-      console.log(err);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+          setErrorMessage(err.message);
+        } else {
+          setErrorMessage("An unknown error occurred");
+        }
+        console.log(err);
     }
   }
 

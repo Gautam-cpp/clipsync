@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 export default function NormalUserHomePage({ room }: { room: string }) {
     const { message, setMessage, wsRef } = useSocket({room});
-    const {data:session, status} =  useSession()
+    const {data:session} =  useSession()
 
   return (
     <div className="flex flex-col gap-15 pt-28 items-center min-h-screen bg-gray-100">
