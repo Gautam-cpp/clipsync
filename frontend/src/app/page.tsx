@@ -1,6 +1,7 @@
 "use client"; 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { generateRoomId } from "@/components/RoomId";
 
 export default function Home() {
   const router = useRouter();
@@ -11,7 +12,8 @@ export default function Home() {
       if (roomId) {
         router.replace(`/${roomId}`); 
       } else {
-        router.replace('/iead00'); 
+        const room = generateRoomId();
+        router.replace(`/${room}`);
       }
     }
   }, [router]);
