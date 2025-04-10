@@ -20,7 +20,6 @@ export const authOptions: NextAuthOptions = {
         // TODO: Add zod validation for email and password
         const { email, password } = credentials;
 
-
         try {
           const user = await prisma.user.findUnique({ where: { email } });
 
@@ -38,6 +37,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               email,
               password: hashedPassword, 
+              provider: "CREDENTIALS"
             },
           });
 
@@ -61,6 +61,14 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID || "",
       clientSecret: process.env.AUTH_GOOGLE_SECRET || "",
+      profile(profile) {
+        return {
+          id: profile.sub,
+          email: profile.email,
+          provider: "GOOGLE",
+          verified: profile.email_verified,
+        };
+      },
     }),
   ],
 
@@ -80,6 +88,8 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.verified = user.verified;
+        if(user.provider === "google") token.provider = "GOOGLE";
+        token.provider = user.provider ?? "GOOGLE";
         
       }
       return token;
@@ -90,6 +100,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.verified = token.verified as boolean;
+
+        // session.user.provider = token.provider as string;
         
       }
       return session;
