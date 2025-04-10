@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export function generateRoomId() {
-  const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const char = "abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWXYZ123456789";
   let roomId = "";
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     roomId += char[Math.floor(Math.random() * char.length)];
   }
   return roomId;
