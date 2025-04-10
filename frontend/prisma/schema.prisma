@@ -18,6 +18,7 @@ model User {
   username      String?
   email         String   @unique
   password      String
+  provider      String
   createdAt     DateTime @default(now())
   verified      Boolean  @default(false)
   otp           String? 
@@ -25,4 +26,9 @@ model User {
   otpExpiresAt  DateTime?
 
   @@index([otpExpiresAt])
+}
+
+enum Provider {
+  GOOGLE
+  CREDENDTIALS
 }
