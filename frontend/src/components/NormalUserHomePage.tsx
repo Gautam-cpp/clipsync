@@ -56,7 +56,7 @@ export default function NormalUserHomePage({ room }: { room: string }) {
 
     <div className="bg-gray-800 w-full h-1 mt-10"></div>
 
-    {session?.user && <FileShare room={room} />}
+    {(session?.user.verified || session?.user.provider === "GOOGLE") && <FileShare room={room} />}
   </div>
 </div>
 
