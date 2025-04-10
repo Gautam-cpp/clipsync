@@ -83,15 +83,24 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.verified = user.verified;
-        if(user.provider === "google") token.provider = "GOOGLE";
-        token.provider = user.provider ?? "GOOGLE";
+        token.provider = user.provider ?? "CREDENTIALS";
+      } else {
         
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email as string },
+        });
+  
+        if (dbUser) {
+          token.verified = dbUser.verified;
+        }
       }
+  
       return token;
     },
 
@@ -101,7 +110,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email as string;
         session.user.verified = token.verified as boolean;
 
-        // session.user.provider = token.provider as string;
+        session.user.provider = token.provider as string;
         
       }
       return session;
