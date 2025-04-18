@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import roomData from "../../public/roomNumbers.json";
-import { privateRoomIds } from "@/app/(app)/[room]/page";
+import { privateRoomIds } from "@/utils/roomUtils";
+
 
 
 export function generateRoomId () {
@@ -28,15 +29,13 @@ export default function RoomId() {
     }, 2000);
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if(!roomIds.includes(window.location.pathname.slice(1)) && !privateRoomIds.includes(window.location.pathname.slice(1)) ) {
-        setRoom(" ");
-        return;
-      }
-      setRoom(`${window.location.host}${window.location.pathname}`);
-    }
-  }, []);
+ useEffect(() => {
+  const pathname = window?.location.pathname.slice(1) || "";
+  const fullUrl = `${window.location.host}/${pathname}`;
+  const isValidRoom = roomIds.includes(pathname) || privateRoomIds.includes(pathname);
+
+  setRoom(isValidRoom ? fullUrl : " ");
+}, [roomIds]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">

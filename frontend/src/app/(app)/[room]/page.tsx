@@ -2,8 +2,8 @@ import AppBar from "@/components/AppBar";
 import NormalUserHomePage from "@/components/NormalUserHomePage";
 import roomData from "../../../../public/roomNumbers.json";
 import RoomId from "@/components/RoomId";
+import { privateRoomIds } from "@/utils/roomUtils";
 
-export const privateRoomIds = process.env.NEXT_PUBLIC_PRIVATE_ROOMID?.split(",") || [];
 
 export default async function Home({ params }: { params: Promise<{ room: string }> }) {
   const {room} = await params;
