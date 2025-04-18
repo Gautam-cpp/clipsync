@@ -2,17 +2,19 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import roomData from "../../public/roomNumbers.json";
+import { privateRoomIds } from "@/app/(app)/[room]/page";
 
-export function generateRoomId() {
-  const char = "123456789abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWXYZ";
-  let roomId = "";
-  for (let i = 0; i < 4; i++) {
-    roomId += char[Math.floor(Math.random() * char.length)];
-  }
-  return roomId;
-}
+
+export function generateRoomId () {
+  const { roomIds } = roomData;
+  console.log(roomIds.length)
+  const randomIndex = Math.floor(Math.random() * roomIds.length);
+  return roomIds[randomIndex];
+};
 
 export default function RoomId() {
+  const { roomIds } = roomData;
   const router = useRouter();
   const [room, setRoom] = useState("");
   const [buttonText, setButtonText] = useState("copy");
@@ -28,6 +30,10 @@ export default function RoomId() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      if(!roomIds.includes(window.location.pathname.slice(1)) && !privateRoomIds.includes(window.location.pathname.slice(1)) ) {
+        setRoom(" ");
+        return;
+      }
       setRoom(`${window.location.host}${window.location.pathname}`);
     }
   }, []);
@@ -54,7 +60,7 @@ export default function RoomId() {
         const newRoom = generateRoomId();
         setRoom(newRoom);
         router.push(`/${newRoom}`);
-        localStorage.setItem("roomId", newRoom);
+        localStorage.setItem("roomId", newRoom)
       }}
       className="w-full mt-4 py-3 px-5 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors font-medium"
     >
