@@ -7,14 +7,17 @@ import { useState } from "react";
 
 
 export default function Signin() {
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [openOtpdialog, setOpenOtpdialog] = useState(false);
   const { data: session } = useSession();
 
   async function submitSignin() {
+    setIsLoading(true);
     setErrorMessage("");
     if (!email || !password) {
       setErrorMessage("Email and Password field cannot be empty.");
@@ -36,12 +39,10 @@ export default function Signin() {
       }
 
       if(!session?.user.verified ){
-        setOpenOtpdialog(true);
+        setOpenOtpdialog(false);
         return
       }
-
-      const room = localStorage.getItem("room");
-
+      const room = localStorage.getItem("roomId");
       router.push(`/${room}`);
 
      
@@ -52,6 +53,8 @@ export default function Signin() {
           setErrorMessage("An unknown error occurred");
         }
         console.log(err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -83,9 +86,10 @@ export default function Signin() {
 
       <button
         onClick={submitSignin}
-        className="w-full py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        disabled={isLoading}
+        className="w-full py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
       >
-        Sign In
+        {isLoading ? "Signing In..." : "Sign In"}
       </button>
 
       <OTPInput openOtpdialog={openOtpdialog} setOpenOtpdialog={setOpenOtpdialog} email={email} />
