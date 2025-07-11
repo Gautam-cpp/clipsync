@@ -1,2 +1,2 @@
-
-export const privateRoomIds = process.env.NEXT_PUBLIC_PRIVATE_ROOMID?.split(",") || [];
+export const privateRoomIds: string[] =
+  process.env.NEXT_PUBLIC_PRIVATE_ROOMID?.split(",").map(id => id.trim()) || [];
