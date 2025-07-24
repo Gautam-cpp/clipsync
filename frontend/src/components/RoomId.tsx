@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import roomData from "@/public/roomNumbers.json";
+import roomData from "./data/roomData.json";
 import { privateRoomIds } from "@/utils/roomUtils";
 
 export function generateRoomId(): string {
