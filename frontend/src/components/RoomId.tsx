@@ -15,19 +15,15 @@ export function generateRoomId(): string {
 export default function RoomId() {
   const { roomIds } = roomData;
   const router = useRouter();
-
   const [room, setRoom] = useState<string>("");
-  const [buttonText, setButtonText] = useState<"copy" | "copied" | "error">(
-    "copy",
-  );
+  const [buttonText, setButtonText] = useState<"copy" | "copied" | "error">("copy");
 
   const handleCopy = async () => {
     if (!room) return;
     try {
       await navigator.clipboard.writeText(room);
       setButtonText("copied");
-    } catch (err) {
-      console.error("Failed to copy:", err);
+    } catch {
       setButtonText("error");
     } finally {
       setTimeout(() => setButtonText("copy"), 2000);
@@ -35,10 +31,10 @@ export default function RoomId() {
   };
 
   useEffect(() => {
-    const pathname = window.location.pathname.slice(1); // strip leading "/"
-    const host = window.location.host;
+    if (typeof window === "undefined") return;
+    const pathname = window.location.pathname.slice(1);
+    const host = window.location.origin;
     const fullUrl = `${host}/${pathname}`;
-
     const isValidRoom =
       roomIds.includes(pathname) || privateRoomIds.includes(pathname);
 
@@ -48,6 +44,7 @@ export default function RoomId() {
     } else {
       const stored = localStorage.getItem("roomId");
       if (stored) setRoom(`${host}/${stored}`);
+      else setRoom("");
     }
   }, [roomIds]);
 
@@ -80,8 +77,7 @@ export default function RoomId() {
         onClick={() => {
           const newRoom = generateRoomId();
           router.push(`/${newRoom}`);
-          localStorage.setItem("roomId", newRoom); 
-          setRoom(`${window.location.host}/${newRoom}`); 
+          localStorage.setItem("roomId", newRoom);
         }}
         className="w-full py-3 px-5 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors font-medium"
       >
