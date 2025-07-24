@@ -1,6 +1,6 @@
 import AppBar from "@/components/AppBar";
 import NormalUserHomePage from "@/components/NormalUserHomePage";
-import roomData from "../../../../public/roomNumbers.json";
+import roomData from "@/components/data/roomNumbers.json";
 import RoomId from "@/components/RoomId";
 import { privateRoomIds } from "@/utils/roomUtils";
 
