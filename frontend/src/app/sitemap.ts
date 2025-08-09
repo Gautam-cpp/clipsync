@@ -1,7 +1,7 @@
 // Create app/sitemap.ts
 import { MetadataRoute } from 'next';
 import roomData from '@/components/data/roomNumbers.json';
-import { privateRoomIds } from '@/utils/roomUtils';
+// import { privateRoomIds } from '@/utils/roomUtils';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.clipsyncc.me';
