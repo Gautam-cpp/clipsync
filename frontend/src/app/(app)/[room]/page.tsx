@@ -3,6 +3,20 @@ import NormalUserHomePage from "@/components/NormalUserHomePage";
 import roomData from "@/components/data/roomNumbers.json";
 import RoomId from "@/components/RoomId";
 import { privateRoomIds } from "@/utils/roomUtils";
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ room: string }> }): Promise<Metadata> {
+  const { room } = await params;
+  
+  return {
+    title: `ClipSync Room ${room} - Secure File & Text Sharing`,
+    description: `Join ClipSync room ${room} to sync clipboard and transfer files securely in real-time`,
+    openGraph: {
+      title: `ClipSync Room ${room}`,
+      description: "Secure real-time file and clipboard sharing",
+    },
+  };
+}
 
 
 export default async function Home({ params }: { params: Promise<{ room: string }> }) {
