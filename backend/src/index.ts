@@ -26,7 +26,7 @@ redis.on("error", (err) => {
 });
 
 async function redisConnect() {
-  try{
+  try {
     await redis.connect();
   } catch (error) {
     console.error("Redis connection error:", error);
@@ -57,7 +57,7 @@ wss.on("connection", (socket: WebSocket) => {
 
       const lastMessage = await redis.get(`room:${room}:lastMessage`);
       if (lastMessage) {
-        socket.send(lastMessage);
+        socket.send(JSON.stringify({ type: "text-update", content: lastMessage }));
       }
     }
 
@@ -67,9 +67,11 @@ wss.on("connection", (socket: WebSocket) => {
 
       if (room) {
         await redis.set(`room:${room}:lastMessage`, chat);
+        const broadcastMsg = JSON.stringify({ type: "text-update", content: chat });
+
         allSockets.forEach((r, s) => {
           if (r === room) {
-            s.send(chat);
+            s.send(broadcastMsg);
           }
         });
       }

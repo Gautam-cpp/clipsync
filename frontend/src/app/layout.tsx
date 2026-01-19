@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { Outfit } from "next/font/google"; // Quirky/Modern font
 import "./globals.css";
-import AuthProvider from "@/context/AuthProvider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+
+const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ClipSync - Sync Clipboard & Transfer Files Instantly",
@@ -26,14 +30,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <AuthProvider>
-      <body
-        
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${outfit.className} antialiased transition-colors duration-300`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
-    </AuthProvider>
     </html>
   );
 }
