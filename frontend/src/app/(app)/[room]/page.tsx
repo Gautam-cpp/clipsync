@@ -4,13 +4,49 @@ import roomData from "@/components/data/roomNumbers.json";
 import { privateRoomIds } from "@/utils/roomUtils";
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { StructuredData } from "@/components/structured-data";
 
 export async function generateMetadata({ params }: { params: Promise<{ room: string }> }): Promise<Metadata> {
   const { room } = await params;
 
   return {
-    title: `ClipSync Room ${room}`,
-    description: `Join ClipSync room ${room} to sync clipboard and transfer files securely in real-time`,
+    title: `Room ${room}`,
+    description: `Join ClipSync room ${room} to sync clipboard and transfer files securely in real-time. Share text and files instantly across all your devices with end-to-end encryption.`,
+    keywords: [
+      `room ${room}`,
+      "clipboard sync room",
+      "file transfer room",
+      "secure sharing",
+      "real-time collaboration",
+      "device sync",
+    ],
+    openGraph: {
+      title: `ClipSync Room ${room}`,
+      description: `Join room ${room} to sync clipboard and transfer files instantly`,
+      url: `https://www.clipsyncc.me/${room}`,
+      type: "website",
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: `ClipSync Room ${room}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `ClipSync Room ${room}`,
+      description: `Join room ${room} to sync clipboard and transfer files instantly`,
+      images: ["/twitter-image"],
+    },
+    alternates: {
+      canonical: `https://www.clipsyncc.me/${room}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
   };
 }
 
@@ -39,6 +75,8 @@ export default async function RoomPage({ params }: { params: Promise<{ room: str
 
   return (
     <div className="min-h-screen flex flex-col bg-background font-sans overflow-x-hidden">
+      <StructuredData type="breadcrumb" data={{ roomId: room }} />
+
       {/* Background Decorations */}
       <div className="fixed inset-0 z-[-1] opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }}>

@@ -1,0 +1,37 @@
+{
+    "name": "ClipSync - Clipboard & File Sync",
+    "short_name": "ClipSync",
+    "description": "Sync your clipboard across devices effortlessly and transfer files in real-time",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#8b5cf6",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "utilities",
+        "productivity"
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Create New Room",
+            "short_name": "New Room",
+            "description": "Create a new sync room",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "/icon.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

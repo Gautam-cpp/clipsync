@@ -1,33 +1,32 @@
-// Create app/sitemap.ts
 import { MetadataRoute } from 'next';
 import roomData from '@/components/data/roomNumbers.json';
-// import { privateRoomIds } from '@/utils/roomUtils';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.clipsyncc.me';
   const { roomIds } = roomData;
+  const currentDate = new Date();
 
-  const staticPages = [
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 1,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/signin`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
     },
   ];
 
-  // Add room pages
-  const roomPages = roomIds.map((room) => ({
+  // Add room pages with appropriate priorities
+  const roomPages: MetadataRoute.Sitemap = roomIds.map((room) => ({
     url: `${baseUrl}/${room}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.8,
+    lastModified: currentDate,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }));
 
   return [...staticPages, ...roomPages];
