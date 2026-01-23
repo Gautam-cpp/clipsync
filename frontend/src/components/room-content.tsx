@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import useSocket from "@/hooks/useSocket";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, Download, FileText, Image as ImageIcon, Music, Video, Zap } from "lucide-react";
-import { toast } from "sonner"; // Assuming sonner is installed or will be
+import { toast } from "sonner";
 
-import { TextEditor } from "@/components/text-editor";
+const TextEditor = dynamic(() => import("@/components/text-editor").then(mod => ({ default: mod.TextEditor })), {
+    ssr: false,
+    loading: () => <div className="w-full h-32 bg-muted animate-pulse rounded-xl" />,
+});
 
 export default function RoomContent({ room }: { room: string }) {
     const { wsRef, receivedFiles, message, sendText } = useSocket({ room });
@@ -16,7 +20,6 @@ export default function RoomContent({ room }: { room: string }) {
     const [dragActive, setDragActive] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Handle Drag Events
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -239,7 +242,7 @@ export default function RoomContent({ room }: { room: string }) {
                             <p className="text-xs text-muted-foreground mt-2">Click ID to copy</p>
                         </div>
 
-                        <div className="w-full max-w-xs p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
+                        <div className="w-full max-w-xs p-4 bg-yellow-100 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
                             ⚠️ Files are shared in real-time and are not stored on the server. Do not refresh functionality.
                         </div>
 
