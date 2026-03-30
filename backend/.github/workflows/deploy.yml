@@ -1,39 +1,22 @@
-name: Node CI/CD
+name: Backend CI/CD
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    environment: Production
+
+    environment: Production   # optional but good
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    # Install Node
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    # Install deps
-    - name: Install dependencies
-      run: npm install
-
-    # Build TS
-    - name: Build project
-      run: npm run build
-
-    # (Optional but recommended)
-    - name: Run tests
-      run: echo "Add tests here"
-
-    # Build Docker image
+    # Build Docker from backend folder
     - name: Build Docker image
-      run: docker build -t be-app .
+      run: docker build -t be-app ./backend
 
     # Save image
     - name: Save Docker image
@@ -49,8 +32,8 @@ jobs:
         source: "be-app.tar"
         target: "/home/ubuntu/"
 
-    # Deploy on EC2
-    - name: Deploy
+    # Deploy
+    - name: Deploy on EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -61,7 +44,8 @@ jobs:
           docker stop be-app || true
           docker rm be-app || true
           docker run -d \
-            -p 80:3000 \
             --name be-app \
             --env-file /home/ubuntu/.env \
+            -p 80:3000 \
+            --restart always \
             be-app
