@@ -38,16 +38,19 @@ async function redisConnect() {
 redisConnect();
 
 const allSockets = new Map<WebSocket, string>();
+const rooms = new Map<string, Set<WebSocket>>();
 
 wss.on("connection", (socket: WebSocket) => {
   socket.on("message", async (message, isBinary) => {
     if (isBinary) {
       const room = allSockets.get(socket);
-      allSockets.forEach((r, s) => {
-        if (r === room) {
-          s.send(message, { binary: true });
-        }
-      });
+      if (room) {
+        rooms.get(room)?.forEach((s) => {
+          if (s.readyState === WebSocket.OPEN) {
+            s.send(message, { binary: true });
+          }
+        });
+      }
       return;
     }
 
@@ -57,8 +60,11 @@ wss.on("connection", (socket: WebSocket) => {
       const room = parsedMessage.payload.room;
       allSockets.set(socket, room);
 
+      if (!rooms.has(room)) rooms.set(room, new Set());
+      rooms.get(room)?.add(socket);
+
       const lastMessage = await redis.get(`room:${room}:lastMessage`);
-      if (lastMessage) {
+      if (lastMessage && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: "text-update", content: lastMessage }));
       }
     }
@@ -68,11 +74,11 @@ wss.on("connection", (socket: WebSocket) => {
       const chat = parsedMessage.payload.chat.toString();
 
       if (room) {
-        await redis.set(`room:${room}:lastMessage`, chat);
+        redis.set(`room:${room}:lastMessage`, chat);
         const broadcastMsg = JSON.stringify({ type: "text-update", content: chat });
 
-        allSockets.forEach((r, s) => {
-          if (r === room) {
+        rooms.get(room)?.forEach((s) => {
+          if (s.readyState === WebSocket.OPEN) {
             s.send(broadcastMsg);
           }
         });
@@ -83,8 +89,8 @@ wss.on("connection", (socket: WebSocket) => {
       const metaString = JSON.stringify(parsedMessage);
       const room = parsedMessage.payload.room;
 
-      allSockets.forEach((r, s) => {
-        if (r === room) {
+      rooms.get(room)?.forEach((s) => {
+        if (s.readyState === WebSocket.OPEN) {
           s.send(metaString);
         }
       });
@@ -93,6 +99,13 @@ wss.on("connection", (socket: WebSocket) => {
 
   socket.on("close", () => {
     console.log("closed");
+    const room = allSockets.get(socket);
+    if (room) {
+      rooms.get(room)?.delete(socket);
+      if (rooms.get(room)?.size === 0) {
+        rooms.delete(room);
+      }
+    }
     allSockets.delete(socket);
   });
 });
