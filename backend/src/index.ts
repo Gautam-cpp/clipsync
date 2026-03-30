@@ -1,4 +1,8 @@
 import { WebSocketServer, WebSocket } from "ws";
+
+interface ExtWebSocket extends WebSocket {
+  isAlive: boolean;
+}
 import { createClient } from "redis";
 import dotenv from "dotenv";
 dotenv.config();
@@ -40,7 +44,11 @@ redisConnect();
 const allSockets = new Map<WebSocket, string>();
 const rooms = new Map<string, Set<WebSocket>>();
 
-wss.on("connection", (socket: WebSocket) => {
+wss.on("connection", (socket: ExtWebSocket) => {
+  socket.isAlive = true;
+  socket.on("pong", () => {
+    socket.isAlive = true;
+  });
   socket.on("message", async (message, isBinary) => {
     if (isBinary) {
       const room = allSockets.get(socket);
@@ -63,7 +71,15 @@ wss.on("connection", (socket: WebSocket) => {
       if (!rooms.has(room)) rooms.set(room, new Set());
       rooms.get(room)?.add(socket);
 
-      const lastMessage = await redis.get(`room:${room}:lastMessage`);
+      let lastMessage: string | null = null;
+      try {
+        if (redis.isOpen) {
+          lastMessage = await redis.get(`room:${room}:lastMessage`);
+        }
+      } catch (err) {
+        console.error("Redis get error:", err);
+      }
+
       if (lastMessage && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: "text-update", content: lastMessage }));
       }
@@ -74,14 +90,21 @@ wss.on("connection", (socket: WebSocket) => {
       const chat = parsedMessage.payload.chat.toString();
 
       if (room) {
-        redis.set(`room:${room}:lastMessage`, chat);
         const broadcastMsg = JSON.stringify({ type: "text-update", content: chat });
 
+        // 1. Broadcast immediately to WebSocket clients (PURE ZERO LATENCY)
         rooms.get(room)?.forEach((s) => {
           if (s.readyState === WebSocket.OPEN) {
             s.send(broadcastMsg);
           }
         });
+
+        // 2. Persist to Redis asynchronously in the background
+        if (redis.isOpen) {
+          redis.set(`room:${room}:lastMessage`, chat, { EX: 86400 }).catch(err => {
+            console.error("Redis set error:", err);
+          });
+        }
       }
     }
 
@@ -108,4 +131,21 @@ wss.on("connection", (socket: WebSocket) => {
     }
     allSockets.delete(socket);
   });
+});
+
+const interval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    const extWs = ws as ExtWebSocket;
+    if (extWs.isAlive === false) {
+      extWs.terminate();
+      return;
+    }
+
+    extWs.isAlive = false;
+    extWs.ping();
+  });
+}, 30000);
+
+wss.on("close", () => {
+  clearInterval(interval);
 });
