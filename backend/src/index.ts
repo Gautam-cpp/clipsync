@@ -16,6 +16,7 @@ const redis = createClient({
   },
 });
 
+
 redis.on("connect", () => {
   console.log("connected to redis");
 });
