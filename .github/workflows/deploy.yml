@@ -1,0 +1,46 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or the version you are using
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to the backend directory on your EC2 instance.
+            # Replace '~/clipsync/backend' with your actual path if different.
+            cd ~/clipsync/backend
+
+            # Pull latest changes from the main branch
+            git pull origin main
+
+            # Install dependencies and build
+            npm install
+            npm run build
+
+            # Restart the backend service using pm2
+            # Make sure you have initially started it with: pm2 start dist/index.js --name clipsync-backend
+            pm2 restart clipsync-backend || pm2 start dist/index.js --name clipsync-backend
