@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { FileText, Check, Loader2 } from "lucide-react";
+import { FileText, Check } from "lucide-react";
 
 interface TextEditorProps {
     initialContent: string;
