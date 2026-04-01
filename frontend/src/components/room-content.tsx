@@ -112,6 +112,7 @@ export default function RoomContent({ room }: { room: string }) {
     return (
         <div className="w-full max-w-6xl mx-auto space-y-8">
             <TextEditor
+                key={room}
                 initialContent={message}
                 onUpdate={sendText}
                 className="w-full"

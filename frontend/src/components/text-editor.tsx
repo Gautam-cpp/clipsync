@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { FileText, Check } from "lucide-react";
@@ -13,13 +13,24 @@ interface TextEditorProps {
 
 export function TextEditor({ initialContent, onUpdate, className }: TextEditorProps) {
     const [content, setContent] = useState(initialContent);
+    const lastLocalEditAtRef = useRef(0);
+    const lastSentContentRef = useRef(initialContent);
 
     useEffect(() => {
+        const isLocalEcho = initialContent === lastSentContentRef.current;
+        const justTyped = Date.now() - lastLocalEditAtRef.current < 350;
+
+        if (isLocalEcho || justTyped) {
+            return;
+        }
+
         setContent(initialContent);
     }, [initialContent]);
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newContent = e.target.value;
+        lastLocalEditAtRef.current = Date.now();
+        lastSentContentRef.current = newContent;
         setContent(newContent);
         onUpdate(newContent);
     };
