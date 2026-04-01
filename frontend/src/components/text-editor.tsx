@@ -13,7 +13,6 @@ interface TextEditorProps {
 
 export function TextEditor({ initialContent, onUpdate, className }: TextEditorProps) {
     const [content, setContent] = useState(initialContent);
-    const [isSyncing, setIsSyncing] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout>(null);
 
     // Sync internal state with external updates (but only if not currently typing/debouncing too aggressively)
@@ -24,7 +23,6 @@ export function TextEditor({ initialContent, onUpdate, className }: TextEditorPr
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newContent = e.target.value;
         setContent(newContent);
-        setIsSyncing(true);
 
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -32,8 +30,7 @@ export function TextEditor({ initialContent, onUpdate, className }: TextEditorPr
 
         timeoutRef.current = setTimeout(() => {
             onUpdate(newContent);
-            setIsSyncing(false);
-        }, 500); // 500ms debounce
+        }); // 500ms debounce
     };
 
     return (
@@ -49,16 +46,10 @@ export function TextEditor({ initialContent, onUpdate, className }: TextEditorPr
                 <h2 className="text-xl font-bold flex items-center gap-2">
                     <FileText className="w-5 h-5" /> Real-time Editor
                 </h2>
-                <div className="flex items-center gap-2 text-xs font-mono">
-                    {isSyncing ? (
-                        <span className="text-muted-foreground flex items-center gap-1">
-                            <Loader2 className="w-3 h-3 animate-spin" /> Syncing...
-                        </span>
-                    ) : (
+                <div className="flex items-center gap-2 text-xs font-mono"> 
                         <span className="text-green-500 flex items-center gap-1">
                             <Check className="w-3 h-3" /> Synced
                         </span>
-                    )}
                 </div>
             </div>
 

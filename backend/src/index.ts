@@ -4,7 +4,7 @@ dotenv.config();
 
 const PORT = parseInt(process.env.PORT || "8080", 10);
 
-const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
+const wss = new WebSocketServer({ port: PORT });
 
 const allSockets = new Map<WebSocket, string>();
 const roomLastMessage = new Map<string, string>();
