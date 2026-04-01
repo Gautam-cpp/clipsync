@@ -54,7 +54,6 @@ export default function RoomContent({ room }: { room: string }) {
         setIsUploading(true);
         setUploadProgress(0);
 
-        // Send metadata
         socket.send(JSON.stringify({
             type: "file-meta",
             name: file.name,
@@ -94,7 +93,6 @@ export default function RoomContent({ room }: { room: string }) {
 
     const getFileIcon = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
-
         switch (extension) {
             case 'pdf': return <FileText className="w-8 h-8 text-red-500" />;
             case 'doc':
@@ -113,7 +111,6 @@ export default function RoomContent({ room }: { room: string }) {
 
     return (
         <div className="w-full max-w-6xl mx-auto space-y-8">
-            {/* Editor Section */}
             <TextEditor
                 initialContent={message}
                 onUpdate={sendText}
@@ -121,8 +118,6 @@ export default function RoomContent({ room }: { room: string }) {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                {/* File Transfer Section */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -146,12 +141,7 @@ export default function RoomContent({ room }: { room: string }) {
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
+                            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
 
                             <div className="flex flex-col items-center gap-4 pointer-events-none">
                                 <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent-foreground">
@@ -163,7 +153,6 @@ export default function RoomContent({ room }: { room: string }) {
                                 </div>
                             </div>
 
-                            {/* Upload Progress Overlay */}
                             {isUploading && (
                                 <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center flex-col z-10">
                                     <div className="w-64 h-4 bg-muted rounded-full overflow-hidden border border-border">
@@ -181,33 +170,34 @@ export default function RoomContent({ room }: { room: string }) {
                         <div className="space-y-4">
                             <h3 className="font-bold text-lg flex items-center gap-2">
                                 Received Files
-                                {receivedFiles && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
+                                {receivedFiles.length > 0 && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
                             </h3>
 
                             <AnimatePresence mode="popLayout">
-                                {receivedFiles ? (
-                                    <motion.div
-                                        key={receivedFiles.url}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        className="flex items-center gap-4 p-4 rounded-lg border-2 border-border bg-background hover:bg-accent/10 transition-colors group"
-                                    >
-                                        <div className="shrink-0">
-                                            {getFileIcon(receivedFiles.name)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-medium truncate">{receivedFiles.name}</p>
-                                            <p className="text-xs text-muted-foreground">Ready to download</p>
-                                        </div>
-                                        <a
-                                            href={receivedFiles.url}
-                                            download={receivedFiles.name}
-                                            className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors"
+                                {receivedFiles.length > 0 ? (
+                                    receivedFiles.map((file) => (
+                                        <motion.div
+                                            key={file.url}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            className="flex items-center gap-4 p-4 rounded-lg border-2 border-border bg-background hover:bg-accent/10 transition-colors group"
                                         >
-                                            <Download className="w-5 h-5" />
-                                        </a>
-                                    </motion.div>
+                                            <div className="shrink-0">{getFileIcon(file.name)}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-medium truncate">{file.name}</p>
+                                                <p className="text-xs text-muted-foreground">Ready to download</p>
+                                            </div>
+
+                                            <a
+                                                href={file.url}
+                                                download={file.name}
+                                                className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors"
+                                            >
+                                                <Download className="w-5 h-5" />
+                                            </a>
+                                        </motion.div>
+                                    ))
                                 ) : (
                                     <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-lg">
                                         <div className="opacity-50">No files received yet...</div>
@@ -218,7 +208,6 @@ export default function RoomContent({ room }: { room: string }) {
                     </div>
                 </motion.div>
 
-                {/* Clipboard History Section (Placeholder/Future) */}
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -245,10 +234,8 @@ export default function RoomContent({ room }: { room: string }) {
                         <div className="w-full max-w-xs p-4 bg-yellow-100 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
                             ⚠️ Files are shared in real-time and are not stored on the server. Do not refresh functionality.
                         </div>
-
                     </div>
                 </motion.div>
-
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { FileText, Check } from "lucide-react";
@@ -13,9 +13,7 @@ interface TextEditorProps {
 
 export function TextEditor({ initialContent, onUpdate, className }: TextEditorProps) {
     const [content, setContent] = useState(initialContent);
-    const timeoutRef = useRef<NodeJS.Timeout>(null);
 
-    // Sync internal state with external updates (but only if not currently typing/debouncing too aggressively)
     useEffect(() => {
         setContent(initialContent);
     }, [initialContent]);
@@ -23,14 +21,7 @@ export function TextEditor({ initialContent, onUpdate, className }: TextEditorPr
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newContent = e.target.value;
         setContent(newContent);
-
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            onUpdate(newContent);
-        }); // 500ms debounce
+        onUpdate(newContent);
     };
 
     return (
@@ -46,10 +37,10 @@ export function TextEditor({ initialContent, onUpdate, className }: TextEditorPr
                 <h2 className="text-xl font-bold flex items-center gap-2">
                     <FileText className="w-5 h-5" /> Real-time Editor
                 </h2>
-                <div className="flex items-center gap-2 text-xs font-mono"> 
-                        <span className="text-green-500 flex items-center gap-1">
-                            <Check className="w-3 h-3" /> Synced
-                        </span>
+                <div className="flex items-center gap-2 text-xs font-mono">
+                    <span className="text-green-500 flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Synced
+                    </span>
                 </div>
             </div>
 
